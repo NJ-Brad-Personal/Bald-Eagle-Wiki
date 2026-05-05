@@ -1,4 +1,4 @@
- I am looking for suggestions - How can I use shared projects in multiple dotnet solutions?                            
+I am looking for suggestions - How can I use shared projects in multiple dotnet solutions?                            
 ● Few solid approaches:                                                                                                 
   1. NuGet Packages (best for stable, versioned libs)                                                                   
   Pack shared project → publish to private feed (Azure Artifacts, GitHub Packages, local folder feed). Consume via        dotnet add package. Best when API is stable and you want explicit versioning.
