@@ -11,13 +11,15 @@ I am looking for suggestions - How can I use shared projects in multiple dotnet 
   3. Directory.Build.props + Relative Paths
 
   Place shared projects in a common folder adjacent to solution folders:
-  /repos
+  ```bash
+/repos
     /shared
       MyShared.csproj
     /SolutionA
       SolutionA.sln
     /SolutionB
       SolutionB.sln
+```
   Reference via relative path in each .csproj:
   <ProjectReference Include="..\..\shared\MyShared.csproj" />
   Simple, no tooling. Breaks if repo layouts diverge.
@@ -44,18 +46,26 @@ I am looking for suggestions - How can I use shared projects in multiple dotnet 
 > Can I use environment variables, instead of relative paths to include external projects?                              
 ● Yes. MSBuild evaluates environment variables as properties.
 
+```xml
   <ProjectReference Include="$(SHARED_PROJECTS_ROOT)\MyShared\MyShared.csproj" />
-                                                                                                                          Set SHARED_PROJECTS_ROOT in your environment before building. Works in VS, dotnet build, CI pipelines.
-                                                                                                                          Better pattern — define fallback in Directory.Build.props so devs don't need env var set if they use standard layout:
+```
 
+Set SHARED_PROJECTS_ROOT in your environment before building. Works in VS, dotnet build, CI pipelines.
+
+Better pattern — define fallback in Directory.Build.props so devs don't need env var set if they use standard layout:
+
+```xml
   <!-- Directory.Build.props -->
   <PropertyGroup>
     <SharedRoot Condition="'$(SHARED_PROJECTS_ROOT)' != ''">$(SHARED_PROJECTS_ROOT)</SharedRoot>
     <SharedRoot Condition="'$(SharedRoot)' == ''">$(MSBuildThisFileDirectory)..\shared</SharedRoot>
   </PropertyGroup>
+```
 
   Then in .csproj:
+```xml
   <ProjectReference Include="$(SharedRoot)\MyShared\MyShared.csproj" />
+```
 
   CI: set SHARED_PROJECTS_ROOT in pipeline env. Dev: set in machine env or .env loaded by your shell. Falls back to
   relative path if unset.
